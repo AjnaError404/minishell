@@ -1,0 +1,118 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtins2.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/08/22 17:34:00 by laaubry           #+#    #+#             */
+/*   Updated: 2026/08/30 12:07:41 by laaubry          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../minishell.h"
+
+int	ft_exit(t_tree *cmd)
+{
+	int	status;
+
+	ft_printf("exit\n");
+	if (cmd->args[1] != NULL)
+	{
+		if (is_numeric(cmd->args[1]) == 0)
+		{
+			ft_printf_fd(2, "minishell: exit: %s: numeric argument required\n",
+				cmd->args[1]);
+			exit(2);
+		}
+		if (cmd->args[2] != NULL)
+		{
+			ft_printf_fd(2, "minishell: exit:too many arguments\n");
+			return (1);
+		}
+		status = ft_atoi(cmd->args[1]);
+		exit(status);
+	}
+	else
+		exit(0);
+}
+
+int	ft_unset(char **env, t_tree *cmd)
+{
+	int	i;
+	int	len;
+
+	if (cmd->args[1] == NULL)
+		return (0);
+	i = 0;
+	len = ft_strlen(cmd->args[1]);
+	while (env[i] != NULL)
+	{
+		if (ft_strncmp(env[i], cmd->args[1], len) == 0 && env[i][len] == '=')
+		{
+			free(env[i]);
+			while (env[i] != NULL)
+			{
+				env[i] = env[i + 1];
+				i++;
+			}
+			return (0);
+		}
+		i++;
+	}
+	return (0);
+}
+
+int	update_env_var(char **env, char *arg, int len)
+{
+	int	i;
+
+	i = 0;
+	while (env[i] != NULL)
+	{
+		if (ft_strncmp(env[i], arg, len) == 0 && env[i][len] == '=')
+		{
+			free(env[i]);
+			env[i] = ft_strdup(arg);
+			return (1);
+		}
+		i++;
+	}
+	return (0);
+}
+
+char	**add_env_var(char **env, char *arg)
+{
+	int		i;
+	int		count;
+	char	**new_env;
+
+	count = count_variables(env);
+	new_env = malloc(sizeof(char *) * (count + 2));
+	if (!new_env)
+		return (NULL);
+	i = 0;
+	while (env[i])
+	{
+		new_env[i] = env[i];
+		i++;
+	}
+	new_env[count] = ft_strdup(arg);
+	new_env[count + 1] = NULL;
+	free(env);
+	return (new_env);
+}
+
+char	**ft_export(char **env, t_tree *cmd)
+{
+	int	len;
+
+	if (cmd->args[1] == NULL)
+		return (env);
+	len = 0;
+	while (cmd->args[1][len] != '=' && cmd->args[1][len] != '\0')
+		len++;
+	if (update_env_var(env, cmd->args[1], len) == 1)
+		return (env);
+	return (add_env_var(env, cmd->args[1]));
+}
