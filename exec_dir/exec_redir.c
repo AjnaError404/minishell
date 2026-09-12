@@ -6,20 +6,20 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 18:44:57 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/12 19:11:43 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 01:17:25 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-void	execute_node(t_tree *node, char ***envp, t_rumba **rumba_mk1)
+void	execute_node(t_tree *node, t_shell *shell, t_rumba **rumba_mk1)
 {
 	if (node == NULL)
 		return ;
 	if (node->type == TYPE_PIPE)
-		execute_pipe(node, *envp, rumba_mk1);
+		execute_pipe(node, shell, rumba_mk1);
 	else
-		execute_command(node, envp, rumba_mk1);
+		execute_command(node, shell, rumba_mk1);
 }
 
 void	setup_redir(t_tree *tree)
@@ -38,27 +38,31 @@ void	setup_redir(t_tree *tree)
 	}
 }
 
-void	exec_left_child(t_tree *node, char **envp, int pipefd[2],
+void	exec_left_child(t_tree *node, t_shell *shell, int pipefd[2],
 		t_rumba **rumba_mk1)
 {
 	dup2(pipefd[1], 1);
 	close(pipefd[0]);
 	close(pipefd[1]);
-	execute_node(node->l_child, &envp, rumba_mk1);
-	clean_child_exit(g_exit_status, envp, rumba_mk1);
+	close_tree_fds(node->r_child);
+	execute_node(node->l_child, shell, rumba_mk1);
+	close_tree_fds(node->l_child);
+	clean_child_exit(shell->status, shell->env, rumba_mk1);
 }
 
-void	exec_right_child(t_tree *node, char **envp, int pipefd[2],
+void	exec_right_child(t_tree *node, t_shell *shell, int pipefd[2],
 		t_rumba **rumba_mk1)
 {
 	dup2(pipefd[0], 0);
 	close(pipefd[0]);
 	close(pipefd[1]);
-	execute_node(node->r_child, &envp, rumba_mk1);
-	clean_child_exit(g_exit_status, envp, rumba_mk1);
+	close_tree_fds(node->l_child);
+	execute_node(node->r_child, shell, rumba_mk1);
+	close_tree_fds(node->r_child);
+	clean_child_exit(shell->status, shell->env, rumba_mk1);
 }
 
-void	execute_pipe(t_tree *node, char **envp, t_rumba **rumba_mk1)
+void	execute_pipe(t_tree *node, t_shell *shell, t_rumba **rumba_mk1)
 {
 	int		pipefd[2];
 	pid_t	pid_left;
@@ -69,10 +73,10 @@ void	execute_pipe(t_tree *node, char **envp, t_rumba **rumba_mk1)
 		return ;
 	pid_left = fork();
 	if (pid_left == 0)
-		exec_left_child(node, envp, pipefd, rumba_mk1);
+		exec_left_child(node, shell, pipefd, rumba_mk1);
 	pid_right = fork();
 	if (pid_right == 0)
-		exec_right_child(node, envp, pipefd, rumba_mk1);
+		exec_right_child(node, shell, pipefd, rumba_mk1);
 	close(pipefd[0]);
 	close(pipefd[1]);
 	signal(SIGINT, SIG_IGN);
@@ -80,7 +84,7 @@ void	execute_pipe(t_tree *node, char **envp, t_rumba **rumba_mk1)
 	waitpid(pid_right, &status, 0);
 	init_signals();
 	if (WIFEXITED(status))
-		g_exit_status = WEXITSTATUS(status);
+		shell->status = WEXITSTATUS(status);
 	else if (WIFSIGNALED(status))
-		g_exit_status = 128 + WTERMSIG(status);
+		shell->status = 128 + WTERMSIG(status);
 }

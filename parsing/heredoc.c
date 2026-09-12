@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 16:13:01 by ykandous          #+#    #+#             */
-/*   Updated: 2026/09/12 18:00:29 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 00:43:27 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ static int	wait_heredoc(pid_t pid)
 	init_signals();
 	if (WIFSIGNALED(st) && WTERMSIG(st) == SIGINT)
 	{
-		g_exit_status = 130;
+		g_signal = SIGINT;
 		write(1, "\n", 1);
 		return (-2);
 	}

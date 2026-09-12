@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/24 20:57:22 by ykandous          #+#    #+#             */
-/*   Updated: 2026/09/12 23:08:55 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 01:10:51 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,6 @@ int	check_quotes_closed(char *line)
 	if (state != STATE_OUT_QUOTE)
 	{
 		ft_printf_fd(2, "minishell: syntax error: unclosed quote\n");
-		g_exit_status = 2;
 		return (0);
 	}
 	return (1);

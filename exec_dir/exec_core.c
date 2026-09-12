@@ -6,30 +6,26 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 18:44:43 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/12 18:30:16 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 01:17:13 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-#include <fcntl.h>
-#include <sys/wait.h>
-#include <unistd.h>
 
-
-static void	run_builtin(t_tree *cmd, char ***envp)
+static void	run_builtin(t_tree *cmd, t_shell *shell)
 {
 	if (ft_strncmp(cmd->args[0], "cd", 3) == 0)
-		g_exit_status = cd(cmd);
+		shell->status = cd(cmd);
 	else if (ft_strncmp(cmd->args[0], "pwd", 4) == 0)
-		g_exit_status = pwd();
+		shell->status = pwd();
 	else if (ft_strncmp(cmd->args[0], "echo", 5) == 0)
-		g_exit_status = echo(cmd);
+		shell->status = echo(cmd);
 	else if (ft_strncmp(cmd->args[0], "export", 7) == 0)
-		*envp = ft_export(*envp, cmd);
+		shell->env = ft_export(shell->env, cmd);
 	else if (ft_strncmp(cmd->args[0], "unset", 6) == 0)
-		g_exit_status = ft_unset(*envp, cmd);
+		shell->status = ft_unset(shell->env, cmd);
 	else if (ft_strncmp(cmd->args[0], "env", 4) == 0)
-		g_exit_status = env(*envp);
+		shell->status = env(shell->env);
 	else if (ft_strncmp(cmd->args[0], "exit", 5) == 0)
 		ft_exit(cmd);
 }
@@ -46,7 +42,8 @@ static int	is_builtin(char *cmd)
 	return (0);
 }
 
-void	execute_simple_command(t_tree **cmd, char **envp, t_rumba **rumba_mk1)
+void	execute_simple_command(t_tree **cmd, t_shell *shell,
+		t_rumba **rumba_mk1)
 {
 	pid_t	pid;
 	int		status;
@@ -55,40 +52,45 @@ void	execute_simple_command(t_tree **cmd, char **envp, t_rumba **rumba_mk1)
 	if (pid == -1)
 		return ;
 	if (pid == 0)
-		exec_child_process(cmd, envp, rumba_mk1);
+		exec_child_process(cmd, shell->env, rumba_mk1);
 	signal(SIGINT, SIG_IGN);
 	waitpid(pid, &status, 0);
 	init_signals();
 	if (WIFEXITED(status))
-		g_exit_status = WEXITSTATUS(status);
+		shell->status = WEXITSTATUS(status);
 	else if (WIFSIGNALED(status))
 	{
 		if (WTERMSIG(status) == SIGINT)
 			write(1, "\n", 1);
 		else if (WTERMSIG(status) == SIGQUIT)
 			ft_printf_fd(2, "Quit (core dumped)\n");
-		g_exit_status = 128 + WTERMSIG(status);
+		shell->status = 128 + WTERMSIG(status);
 	}
 }
 
-void	execute_command(t_tree *cmd, char ***envp, t_rumba **rumba_mk1)
+void	execute_command(t_tree *cmd, t_shell *shell, t_rumba **rumba_mk1)
 {
 	int	saved_stdout;
 	int	saved_stdin;
 
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return ;
-	if (is_builtin(cmd->args[0]))
+	if (ft_strncmp(cmd->args[0], "exit", 5) == 0)
+	{
+		setup_redir(cmd);
+		run_builtin(cmd, shell);
+	}
+	else if (is_builtin(cmd->args[0]))
 	{
 		saved_stdin = dup(STDIN_FILENO);
 		saved_stdout = dup(STDOUT_FILENO);
 		setup_redir(cmd);
-		run_builtin(cmd, envp);
+		run_builtin(cmd, shell);
 		dup2(saved_stdin, STDIN_FILENO);
 		dup2(saved_stdout, STDOUT_FILENO);
 		close(saved_stdin);
 		close(saved_stdout);
 	}
 	else
-		execute_simple_command(&cmd, *envp, rumba_mk1);
+		execute_simple_command(&cmd, shell, rumba_mk1);
 }

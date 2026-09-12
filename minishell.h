@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/16 12:23:29 by ykandous          #+#    #+#             */
-/*   Updated: 2026/09/12 23:18:27 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 01:11:57 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 // clang-format on
 # define TYPE_ERROR -2
 
-extern int			g_exit_status;
+extern int			g_signal;
 
 enum				e_bool
 {
@@ -102,6 +102,12 @@ typedef struct s_tree
 	struct s_tree	*l_child;
 }					t_tree;
 
+typedef struct s_shell
+{
+	char	**env;
+	int		status;
+}					t_shell;
+
 // builtins1.c
 int					pwd(void);
 int					cd(t_tree *cmd);
@@ -117,23 +123,23 @@ char				**add_env_var(char **env, char *arg);
 char				**ft_export(char **envp, t_tree *cmd);
 
 // exec_core.c
-void				execute_node(t_tree *node, char ***envp,
+void				execute_simple_command(t_tree **cmd, t_shell *shell,
 						t_rumba **rumba_mk1);
-void				execute_command(t_tree *cmd, char ***envp,
-						t_rumba **rumba_mk1);
-void				process_line(char *line, char ***my_env,
-						t_rumba **rumba_mk1);
-void				execute_simple_command(t_tree **cmd, char **envp,
+void				execute_command(t_tree *cmd, t_shell *shell,
 						t_rumba **rumba_mk1);
 
+
 // exec_redir.c
+void				execute_node(t_tree *node, t_shell *shell,
+						t_rumba **rumba_mk1);
 void				setup_redir(t_tree *tree);
-void				exec_left_child(t_tree *node, char **envp, int pipefd[2],
+void				exec_left_child(t_tree *node, t_shell *shell, int pipefd[2],
 						t_rumba **rumba_mk1);
-void				exec_right_child(t_tree *node, char **envp, int pipefd[2],
+void				exec_right_child(t_tree *node, t_shell *shell, int pipefd[2],
 						t_rumba **rumba_mk1);
-void				execute_pipe(t_tree *node, char **envp,
+void				execute_pipe(t_tree *node, t_shell *shell,
 						t_rumba **rumba_mk1);
+
 
 // exec_tools.c
 void				exec_child_process(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
@@ -143,13 +149,17 @@ void				close_tree_fds(t_tree *tree);
 void				clean_child_exit(int code, char **envp, t_rumba **rumba_mk1);
 
 // expander_utils.c
+int					ft_isvarname_char(char *str);
+char				*graft_str_gp(char *dest, t_tab *index_tab, char *grafted,
+						t_rumba **rumba_mk1);
 char				*find_var(char *arg, int *i);
 char				*pick_var_name(char *str, t_rumba **rumba_mk1);
 char				*find_envvar(char **envp, char *var_name);
 
 // expander.c
-int					tree_expand_all(t_tree **tree, char **envp,
+int					tree_expand_all(t_tree **tree, t_shell *shell, 
 						t_rumba **rumba_mk1);
+
 						
 // char_type.c
 int					ft_isall_word(char *str);
@@ -199,7 +209,6 @@ char				**fill_str_from_lex(t_lexeme *lexer, t_rumba **rumba_mk1);
 
 // redir.c
 int					is_cmd_redir(int type);
-int					switch_open(char *pathname, int redir_type);
 char				**cmd_to_args(char *cmd, t_rumba **rumba_mk1);
 int					shift_2left_str_tab(char **strs, int nshift);
 
@@ -208,9 +217,8 @@ int					remove_quote(t_tree **tree, t_rumba **rumba_mk1);
 
 // tree.c
 t_tree				*lex_to_tree(t_lexeme *lexer, t_rumba **rumba_mk1);
-t_tree				*create_tree(t_lexeme *lexer, char **envp,
+t_tree				*create_tree(t_lexeme *lexer, t_shell *shell,
 						t_rumba **rumba_mk1);
-int					is_cmd_opprt(int type);
 
 // rumba_del.c
 int					del_all_rumba(t_rumba **rumba_mk1);
@@ -226,63 +234,30 @@ void				*malloc_rumba(size_t size, t_rumba **rumba_mk1);
 // ft_itoa_gp.c
 char				*ft_itoa_gp(int n, t_rumba **rumba_mk1);
 
-// ft_printf
-int					ft_isallnum(char *params);
-int					ft_putstr_fd(char *str, int fd);
+// ft_printf_utils.c
 int					ft_putchar_fd(int c, int fd);
-void				ft_put_pos_base_fd(unsigned long nb, char *base, int *cmp,
-						int fd);
+int					ft_putstr_fd(char *str, int fd);
+void				ft_put_pos_base_fd(unsigned long nb, char *base, int *cmp, int fd);
 int					ft_putbase_fd(int nb, char *base, int fd);
-int					ft_put_ubase_fd(unsigned int nb, char *base, int fd);
+
+// ft_printf.c
+int					ft_put_unsigned_nbr_base_fd(unsigned int nb, char *base, int fd);
 int					ft_put_ptr_fd(void *ptr, int fd);
-void				ft_switch_case_fd(char convert, va_list params, int *cmp,
-						int fd);
+void				ft_switch_case_fd(char convert, va_list params, int *cmp, int fd);
 int					ft_printf_fd(int fd, const char *format, ...);
 int					ft_printf(const char *format, ...);
+
+// ft_str_utils.c
+char	*ft_strdup_gp(char *s, t_rumba **rumba_mk1);
+char	*ft_substr_gp(char *s, unsigned int start, size_t len,
+		t_rumba **rumba_mk1);
+size_t	ft_strlcat(char *dst, char *src, size_t siz);
 
 // is_something.c
 int					ft_char_is_something(char c);
 int					ft_str_is_something(char *c);
 void				print_type(int type);
 int					is_cmd_opprt(int type);
-
-
-// utils2.c
-int					ft_strncmp(const char *s1, const char *s2, size_t n);
-int					ft_strcmp(const char *s1, const char *s2);
-char				*ft_strjoin_gp(char *s1, char *s2, t_rumba **rumba_mk1);
-char				*graft_str_gp(char *dest, t_tab *index_tab, char *grafted,
-						t_rumba **rumba_mk1);
-char				*ft_substr_gp(char *s, unsigned int start, size_t len,
-						t_rumba **rumba_mk1);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// signals.c
-void				handle_sigint(int sig);
-void				init_signals(void);
 
 // utils.c
 int					count_variables(char **envp);
@@ -297,10 +272,16 @@ int					ft_strncmp(const char *s1, const char *s2, size_t n);
 char				*ft_strjoin_gp(char *s1, char *s2, t_rumba **rumba_mk1);
 int					is_valid_n_flag(char *arg);
 
+// main.c
+void				process_line(char *line, t_shell *shell,
+						t_rumba **rumba_mk1);
+
+// signals.c
+void				handle_sigint(int sig);
+void				init_signals(void);
 
 
 // test
-
 void				test_simple_cmd(char **envp);
 void				test_pipe_cmd(char **envp);
 

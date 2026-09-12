@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/08 14:52:14 by ykandous          #+#    #+#             */
-/*   Updated: 2026/08/30 12:18:48 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 23:39:47 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,27 +40,46 @@ int	is_redir_valid(char **cmd)
 	return (1);
 }
 
-int	switch_open(char *pathname, int redir_type)
+static char	*add_spaces_redir(char *cmd, t_rumba **rumba_mk1)
 {
-	int	fd;
+	char	*res;
+	int		i;
+	int		j;
+	int		s;
 
-	fd = -1;
-	if (redir_type == TYPE_REDIR_IN)
-		fd = open(pathname, O_RDONLY);
-	else if (redir_type == TYPE_REDIR_OUT)
-		fd = open(pathname, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	else if (redir_type == TYPE_APPEND)
-		fd = open(pathname, O_WRONLY | O_CREAT | O_APPEND, 0644);
-	return (fd);
+	res = malloc_rumba((ft_strlen(cmd) * 3 + 1), rumba_mk1);
+	if (!res)
+		return (NULL);
+	i = -1;
+	j = 0;
+	s = STATE_OUT_QUOTE;
+	while (cmd[++i])
+	{
+		s = update_fsa_state(cmd[i], s);
+		if (s == STATE_OUT_QUOTE && (cmd[i] == '<' || cmd[i] == '>'))
+			res[j++] = ' ';
+		res[j++] = cmd[i];
+		if (s == STATE_OUT_QUOTE && (cmd[i] == '<' || cmd[i] == '>')
+			&& cmd[i + 1] == cmd[i])
+			res[j++] = cmd[++i];
+		if (s == STATE_OUT_QUOTE && (cmd[i] == '<' || cmd[i] == '>'))
+			res[j++] = ' ';
+	}
+	res[j] = '\0';
+	return (res);
 }
 
 char	**cmd_to_args(char *cmd, t_rumba **rumba_mk1)
 {
 	char	**splited;
+	char	*spaced;
 	int		i;
 	int		len;
 
-	splited = fls_split(cmd, (char *[]){" ", "\t", NULL}, 0, rumba_mk1);
+	spaced = add_spaces_redir(cmd, rumba_mk1);
+	if (!spaced)
+		return (NULL);
+	splited = fls_split(spaced, (char *[]){" ", "\t", NULL}, 0, rumba_mk1);
 	if (!splited)
 		return (NULL);
 	i = 0;
@@ -68,10 +87,7 @@ char	**cmd_to_args(char *cmd, t_rumba **rumba_mk1)
 	while (splited[i])
 	{
 		if (splited[i][0] != '\0')
-		{
-			splited[len] = splited[i];
-			len++;
-		}
+			splited[len++] = splited[i];
 		i++;
 	}
 	splited[len] = NULL;
