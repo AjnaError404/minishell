@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 18:44:57 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/12 01:02:49 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 17:54:37 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,13 @@ void	setup_redir(t_tree *tree)
 	{
 		dup2(tree->fd_in, 0);
 		close(tree->fd_in);
+		tree->fd_in = -2;
 	}
 	if (tree->fd_out != -2)
 	{
 		dup2(tree->fd_out, 1);
 		close(tree->fd_out);
+		tree->fd_out = -2;
 	}
 }
 

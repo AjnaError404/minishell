@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/16 12:23:29 by ykandous          #+#    #+#             */
-/*   Updated: 2026/09/12 14:06:14 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 18:13:40 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,11 +225,6 @@ int					update_env_var(char **env, char *arg, int len);
 char				**add_env_var(char **env, char *arg);
 char				**ft_export(char **envp, t_tree *cmd);
 
-// exec_tools.c
-void				exec_child_process(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
-char				*pathifie(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
-int					update_args0_path(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
-
 
 // exec_core.c
 void				execute_node(t_tree *node, char ***envp,
@@ -249,6 +244,12 @@ void				exec_right_child(t_tree *node, char **envp, int pipefd[2],
 						t_rumba **rumba_mk1);
 void				execute_pipe(t_tree *node, char **envp,
 						t_rumba **rumba_mk1);
+
+// exec_tools.c
+void				exec_child_process(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
+char				*pathifie(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
+int					update_args0_path(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
+void				close_tree_fds(t_tree *tree);
 
 // signals.c
 void				handle_sigint(int sig);

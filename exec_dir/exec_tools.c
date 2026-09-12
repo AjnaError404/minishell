@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/12 00:26:24 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/12 14:00:02 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 17:54:59 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,4 +68,21 @@ int	update_args0_path(t_tree **cmd, char **envp, t_rumba **rumba_mk1)
 		return (1);
 	}
 	return (0);
+}
+void	close_tree_fds(t_tree *tree)
+{
+	if (!tree)
+		return ;
+	if (tree->fd_in != -2)
+	{
+		close(tree->fd_in);
+		tree->fd_in = -2;
+	}
+	if (tree->fd_out != -2)
+	{
+		close(tree->fd_out);
+		tree->fd_out = -2;
+	}
+	close_tree_fds(tree->l_child);
+	close_tree_fds(tree->r_child);
 }

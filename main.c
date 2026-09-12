@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/23 13:18:37 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/12 00:15:34 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 17:55:42 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,10 @@ void	process_line(char *line, char ***my_env, t_rumba **rumba_mk1)
 	add_history(line);
 	ast = create_tree(create_lexer(line, rumba_mk1), *my_env, rumba_mk1);
 	if (ast)
+	{
 		execute_node(ast, my_env, rumba_mk1);
+		close_tree_fds(ast);
+	}
 	del_all_rumba(rumba_mk1);
 }
 
