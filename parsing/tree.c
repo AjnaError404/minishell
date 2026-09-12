@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 22:28:53 by ykandous          #+#    #+#             */
-/*   Updated: 2026/08/30 07:25:45 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 01:03:04 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,8 @@ int	find_lex_childs(t_lexeme **root, t_lexeme **l_child, t_lexeme **r_child)
 		*r_child = (*root)->next;
 		(*r_child)->prev = NULL;
 	}
+	else
+		*r_child = NULL;
 	return (1);
 }
 
@@ -68,6 +70,7 @@ t_tree	*lex_to_tree(t_lexeme *lexer, t_rumba **rumba_mk1)
 	return (tree);
 }
 
+
 t_tree	*find_child(t_lexeme *r_child, t_rumba **rumba_mk1, t_tree *tree)
 {
 	t_lexeme	*root;
@@ -96,10 +99,16 @@ t_tree	*create_tree(t_lexeme *lexer, char **envp, t_rumba **rumba_mk1)
 {
 	t_tree	*tree;
 
-	tree = NULL;
+	if (!lexer)
+		return (NULL);
 	tree = lex_to_tree(lexer, rumba_mk1);
-	tree_update_args_n_fd(&tree, rumba_mk1);
-	tree_expand_all(&tree, envp, rumba_mk1);
-	remove_quote(&tree, rumba_mk1);
+	if (!tree)
+		return (NULL);
+	if (!tree_update_args_n_fd(&tree, rumba_mk1))
+		return (NULL);
+	if (!tree_expand_all(&tree, envp, rumba_mk1))
+		return (NULL);
+	if (!remove_quote(&tree, rumba_mk1))
+		return (NULL);
 	return (tree);
 }

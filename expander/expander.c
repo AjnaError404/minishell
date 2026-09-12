@@ -6,35 +6,37 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/23 19:43:34 by ykandous          #+#    #+#             */
-/*   Updated: 2026/08/30 19:14:01 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 00:09:16 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-char	*expand_var(char **envp, char *tree_args, char *var,
+static char	*expand_var(char **envp, char *tree_args, int *j,
 		t_rumba **rumba_mk1)
 {
 	char	*picked;
 	char	*expanded;
 	char	*replacement;
-	int		var_index;
 	t_tab	*index_tab;
 
-	var_index = var - tree_args;
-	picked = pick_var_name(var + 1, rumba_mk1);
+	picked = pick_var_name(&tree_args[*j + 1], rumba_mk1);
 	if (!picked)
+	{
+		(*j)++;
 		return (tree_args);
+	}
 	index_tab = init_tab(2, rumba_mk1);
 	if (!index_tab)
 		return (NULL);
-	index_tab->tab[0] = var_index;
-	index_tab->tab[1] = var_index + ft_strlen(picked) + 1;
+	index_tab->tab[0] = *j;
+	index_tab->tab[1] = *j + ft_strlen(picked) + 1;
 	if (ft_strcmp(picked, "?") == 0)
 		replacement = ft_itoa_gp(g_exit_status, rumba_mk1);
 	else
 		replacement = find_envvar(envp, picked);
 	expanded = graft_str_gp(tree_args, index_tab, replacement, rumba_mk1);
+	*j += ft_strlen(replacement);
 	return (expanded);
 }
 
@@ -55,9 +57,8 @@ int	treenode_expand_args(t_tree **tree, char **envp, t_rumba **rumba_mk1)
 		var = find_var((*tree)->args[i], &j);
 		while (var)
 		{
-			(*tree)->args[i] = expand_var(envp, (*tree)->args[i], var,
+			(*tree)->args[i] = expand_var(envp, (*tree)->args[i], &j,
 					rumba_mk1);
-			j++;
 			var = find_var((*tree)->args[i], &j);
 		}
 		i++;
@@ -76,8 +77,8 @@ int	treenode_expand_cmd(t_tree **tree, char **envp, t_rumba **rumba_mk1)
 	var = find_var((*tree)->cmd_name, &j);
 	while (var)
 	{
-		(*tree)->cmd_name = expand_var(envp, (*tree)->cmd_name, var, rumba_mk1);
-		j++;
+		(*tree)->cmd_name = expand_var(envp, (*tree)->cmd_name, &j,
+				rumba_mk1);
 		var = find_var((*tree)->cmd_name, &j);
 	}
 	return (1);
@@ -85,6 +86,8 @@ int	treenode_expand_cmd(t_tree **tree, char **envp, t_rumba **rumba_mk1)
 
 int	tree_expand_all(t_tree **tree, char **envp, t_rumba **rumba_mk1)
 {
+	if (!tree || !*tree)
+		return (0);
 	if ((*tree)->type == TYPE_PIPE)
 	{
 		if (!tree_expand_all(&(*tree)->l_child, envp, rumba_mk1))

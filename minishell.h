@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/16 12:23:29 by ykandous          #+#    #+#             */
-/*   Updated: 2026/08/30 19:08:42 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 14:06:14 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,7 +212,6 @@ int					tree_expand_all(t_tree **tree, char **envp,
 int					remove_quote(t_tree **tree, t_rumba **rumba_mk1);
 
 // builtins1.c
-
 int					pwd(void);
 int					cd(t_tree *cmd);
 int					echo(t_tree *cmd);
@@ -224,10 +223,15 @@ int					ft_exit(t_tree *cmd);
 int					ft_unset(char **env, t_tree *cmd);
 int					update_env_var(char **env, char *arg, int len);
 char				**add_env_var(char **env, char *arg);
-char				**ft_export(char **env, t_tree *cmd);
+char				**ft_export(char **envp, t_tree *cmd);
+
+// exec_tools.c
+void				exec_child_process(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
+char				*pathifie(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
+int					update_args0_path(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
+
 
 // exec_core.c
-
 void				execute_node(t_tree *node, char ***envp,
 						t_rumba **rumba_mk1);
 void				execute_command(t_tree *cmd, char ***envp,
@@ -247,7 +251,6 @@ void				execute_pipe(t_tree *node, char **envp,
 						t_rumba **rumba_mk1);
 
 // signals.c
-
 void				handle_sigint(int sig);
 void				init_signals(void);
 
@@ -257,6 +260,13 @@ int					ft_strlen(const char *str);
 int					ft_atoi(const char *str);
 char				*ft_strdup(const char *s1);
 char				**copy_env(char **envp);
+
+// utils2.c
+int					ft_strcmp(const char *s1, const char *s2);
+int					ft_strncmp(const char *s1, const char *s2, size_t n);
+char				*ft_strjoin_gp(char *s1, char *s2, t_rumba **rumba_mk1);
+int					is_valid_n_flag(char *arg);
+
 
 // test
 

@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/23 19:53:57 by ykandous          #+#    #+#             */
-/*   Updated: 2026/08/30 12:32:28 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/11 20:25:16 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,8 @@ int	treenode_add_args_n_fd(t_tree **tree_node, t_rumba **rumba_mk1)
 
 int	tree_update_args_n_fd(t_tree **tree, t_rumba **rumba_mk1)
 {
+	if (!tree || !*tree)
+		return (0);
 	if ((*tree)->type == TYPE_PIPE)
 	{
 		if (!tree_update_args_n_fd(&(*tree)->l_child, rumba_mk1))

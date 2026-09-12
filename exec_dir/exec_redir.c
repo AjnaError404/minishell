@@ -6,14 +6,11 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 18:44:57 by laaubry           #+#    #+#             */
-/*   Updated: 2026/08/30 12:42:37 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 01:02:49 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-#include <fcntl.h>
-#include <sys/wait.h> // pour les macros WIFEXITED
-#include <unistd.h>   // pour STDIN-FILENO, STDOUT_FILENO, dup2 and close
 
 void	execute_node(t_tree *node, char ***envp, t_rumba **rumba_mk1)
 {
@@ -46,7 +43,7 @@ void	exec_left_child(t_tree *node, char **envp, int pipefd[2],
 	close(pipefd[0]);
 	close(pipefd[1]);
 	execute_node(node->l_child, &envp, rumba_mk1);
-	exit(0);
+	exit(g_exit_status);
 }
 
 void	exec_right_child(t_tree *node, char **envp, int pipefd[2],
@@ -56,18 +53,18 @@ void	exec_right_child(t_tree *node, char **envp, int pipefd[2],
 	close(pipefd[0]);
 	close(pipefd[1]);
 	execute_node(node->r_child, &envp, rumba_mk1);
-	exit(0);
+	exit(g_exit_status);
 }
 
 void	execute_pipe(t_tree *node, char **envp, t_rumba **rumba_mk1)
 {
 	int		pipefd[2];
+	int		status;
 	pid_t	pid_left;
 	pid_t	pid_right;
-	int		status;
 
 	if (pipe(pipefd) == -1)
-		return ;
+		return;
 	pid_left = fork();
 	if (pid_left == 0)
 		exec_left_child(node, envp, pipefd, rumba_mk1);
@@ -80,4 +77,6 @@ void	execute_pipe(t_tree *node, char **envp, t_rumba **rumba_mk1)
 	waitpid(pid_right, &status, 0);
 	if (WIFEXITED(status))
 		g_exit_status = WEXITSTATUS(status);
+	else if (WIFSIGNALED(status))
+		g_exit_status = 128 + WTERMSIG(status);
 }

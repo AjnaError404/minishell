@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/23 13:18:37 by laaubry           #+#    #+#             */
-/*   Updated: 2026/08/30 19:13:19 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 00:15:34 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,21 @@
 
 int	g_exit_status = 0;
 
+static void	free_env(char **env)
+{
+	int	i;
+
+	i = 0;
+	if (!env)
+		return;
+	while (env[i])
+	{
+		free(env[i]);
+		i++;
+	}
+	free(env);
+	rl_clear_history();
+}
 void	process_line(char *line, char ***my_env, t_rumba **rumba_mk1)
 {
 	t_tree	*ast;
@@ -48,5 +63,6 @@ int	main(int argc, char **argv, char **envp)
 			process_line(line, &my_env, &rumba_mk1);
 		free(line);
 	}
+	free_env(my_env);
 	return (g_exit_status);
 }

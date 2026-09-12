@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   is_something.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ykandous <ykandous@student.42.fr>          +#+  +:+       +#+        */
+/*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/16 20:14:41 by ykandous          #+#    #+#             */
-/*   Updated: 2026/05/29 11:08:52 by ykandous         ###   ########.fr       */
+/*   Updated: 2026/09/11 20:14:53 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,9 @@ int	ft_str_is_something(char *str)
 	if (ft_strlen(str) == 1 && ft_char_is_something(str[0]) == TYPE_PIPE)
 		return (TYPE_PIPE);
 	if (ft_strlen(str) == 1 && ft_char_is_something(str[0]) == TYPE_REDIR_IN)
-		return (TYPE_REDIR_OUT);
-	if (ft_strlen(str) == 1 && ft_char_is_something(str[0]) == TYPE_REDIR_OUT)
 		return (TYPE_REDIR_IN);
+	if (ft_strlen(str) == 1 && ft_char_is_something(str[0]) == TYPE_REDIR_OUT)
+		return (TYPE_REDIR_OUT);
 	if (ft_strlen(str) == 2 && ft_char_is_something(str[0]) == TYPE_REDIR_OUT
 		&& ft_char_is_something(str[1]) == TYPE_REDIR_OUT)
 		return (TYPE_APPEND);

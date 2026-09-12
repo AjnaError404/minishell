@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/29 15:08:29 by laaubry           #+#    #+#             */
-/*   Updated: 2026/08/30 07:43:42 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 00:35:56 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,27 +49,23 @@ int	echo(t_tree *cmd)
 {
 	int	i;
 	int	n_flag;
-	int	fd_out;
 
 	i = 1;
 	n_flag = 0;
-	fd_out = 1;
-	if (cmd->fd_out != -2)
-		fd_out = cmd->fd_out;
-	if (cmd->args[1] != NULL && ft_strcmp(cmd->args[1], "-n") == 0)
+	while (cmd->args[i] && is_valid_n_flag(cmd->args[i]))
 	{
 		n_flag = 1;
-		i = 2;
-	}
-	while (cmd->args[i] != NULL)
-	{
-		ft_printf_fd(fd_out, "%s", cmd->args[i]);
-		if (cmd->args[i + 1] != NULL)
-			ft_printf_fd(fd_out, " ");
 		i++;
 	}
-	if (n_flag == 0)
-		ft_printf_fd(fd_out, "\n");
+	while (cmd->args[i])
+	{
+		ft_printf("%s", cmd->args[i]);
+		if (cmd->args[i + 1])
+			ft_printf(" ");
+		i++;
+	}
+	if (!n_flag)
+		ft_printf("\n");
 	return (0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/16 19:27:47 by ykandous          #+#    #+#             */
-/*   Updated: 2026/08/30 19:13:50 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 00:08:19 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,15 +46,20 @@ char	*graft_str_gp(char *dest, t_tab *index_tab, char *grafted,
 char	*find_var(char *arg, int *i)
 {
 	int	state;
+	int	idx;
 
 	state = STATE_OUT_QUOTE;
-	while (arg[*i])
+	idx = 0;
+	while (arg && arg[idx])
 	{
-		state = update_fsa_state(arg[*i], state);
-		if (arg[*i] == '$' && (state == STATE_OUT_QUOTE
+		state = update_fsa_state(arg[idx], state);
+		if (idx >= *i && arg[idx] == '$' && (state == STATE_OUT_QUOTE
 				|| state == STATE_DBL_QUOTE))
-			return (&arg[*i]);
-		(*i)++;
+		{
+			*i = idx;
+			return (&arg[idx]);
+		}
+		idx++;
 	}
 	return (NULL);
 }

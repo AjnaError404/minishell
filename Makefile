@@ -6,7 +6,7 @@
 #    By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/08/03 10:51:35 by laaubry           #+#    #+#              #
-#    Updated: 2026/08/30 14:44:04 by laaubry          ###   ########.fr        #
+#    Updated: 2026/09/12 00:29:02 by laaubry          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,6 +18,7 @@ SRCS    =   builtins/builtins1.c \
             builtins/builtins2.c \
             exec_dir/exec_core.c \
             exec_dir/exec_redir.c \
+			exec_dir/exec_tools.c \
             expander/expander_utils.c \
             expander/expander.c \
             parsing/char_type.c \

@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/21 18:03:38 by ykandous          #+#    #+#             */
-/*   Updated: 2026/08/30 12:07:21 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/11 20:29:25 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ int	args_rm_quote(char **args, t_rumba **rumba_mk1)
 
 int	remove_quote(t_tree **tree, t_rumba **rumba_mk1)
 {
-	if (!tree)
+	if (!tree || !*tree)
 		return (0);
 	if (is_cmd_opprt((*tree)->type))
 	{
@@ -93,9 +93,12 @@ int	remove_quote(t_tree **tree, t_rumba **rumba_mk1)
 	{
 		if (!args_rm_quote((*tree)->args, rumba_mk1))
 			return (0);
-		(*tree)->cmd_name = str_rm_quote((*tree)->cmd_name, rumba_mk1);
-		if (!(*tree)->cmd_name)
-			return (0);
+		if ((*tree)->cmd_name)
+		{
+			(*tree)->cmd_name = str_rm_quote((*tree)->cmd_name, rumba_mk1);
+			if (!(*tree)->cmd_name)
+				return (0);
+		}
 	}
 	return (1);
 }

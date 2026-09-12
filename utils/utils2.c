@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 14:37:28 by ykandous          #+#    #+#             */
-/*   Updated: 2026/08/23 19:05:04 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 14:00:19 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,4 +57,19 @@ char	*ft_strjoin_gp(char *s1, char *s2, t_rumba **rumba_mk1)
 	}
 	res[i] = '\0';
 	return (res);
+}
+int	is_valid_n_flag(char *arg)
+{
+	int	i;
+
+	if (!arg || arg[0] != '-' || arg[1] != 'n')
+		return (0);
+	i = 1;
+	while (arg[i])
+	{
+		if (arg[i] != 'n')
+			return (0);
+		i++;
+	}
+	return (1);
 }

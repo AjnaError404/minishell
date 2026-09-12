@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 18:44:43 by laaubry           #+#    #+#             */
-/*   Updated: 2026/08/30 19:14:33 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 00:28:28 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,62 +15,35 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-char	*pathifie(t_tree **cmd, char **envp, t_rumba **rumba_mk1)
-{
-	char	**paths;
-	char	*absolute;
-	int		i;
-	int		j;
 
-	i = 0;
-	while (envp[i])
-	{
-		if (!ft_strncmp(envp[i], "PATH=", 5))
-		{
-			paths = fls_split(&envp[i][5], (char *[]){":", NULL}, 0, rumba_mk1);
-			j = 0;
-			while (paths && paths[j])
-			{
-				absolute = ft_strjoin_gp(ft_strjoin_gp(paths[j++], "/",
-							rumba_mk1), (*cmd)->args[0], rumba_mk1);
-				if (!absolute)
-					return (NULL);
-				if (!access(absolute, X_OK))
-					return (absolute);
-			}
-		}
-		i++;
-	}
-	return (NULL);
+static void	run_builtin(t_tree *cmd, char ***envp)
+{
+	if (ft_strncmp(cmd->args[0], "cd", 3) == 0)
+		g_exit_status = cd(cmd);
+	else if (ft_strncmp(cmd->args[0], "pwd", 4) == 0)
+		g_exit_status = pwd();
+	else if (ft_strncmp(cmd->args[0], "echo", 5) == 0)
+		g_exit_status = echo(cmd);
+	else if (ft_strncmp(cmd->args[0], "export", 7) == 0)
+		*envp = ft_export(*envp, cmd);
+	else if (ft_strncmp(cmd->args[0], "unset", 6) == 0)
+		g_exit_status = ft_unset(*envp, cmd);
+	else if (ft_strncmp(cmd->args[0], "env", 4) == 0)
+		g_exit_status = env(*envp);
+	else if (ft_strncmp(cmd->args[0], "exit", 5) == 0)
+		ft_exit(cmd);
 }
 
-int	update_args0_path(t_tree **cmd, char **envp, t_rumba **rumba_mk1)
+static int	is_builtin(char *cmd)
 {
-	char	*abs_path;
-
-	abs_path = pathifie(cmd, envp, rumba_mk1);
-	if (abs_path)
-	{
-		(*cmd)->args[0] = abs_path;
+	if (!cmd)
+		return (0);
+	if (!ft_strncmp(cmd, "cd", 3) || !ft_strncmp(cmd, "pwd", 4)
+		|| !ft_strncmp(cmd, "echo", 5) || !ft_strncmp(cmd, "export", 7)
+		|| !ft_strncmp(cmd, "unset", 6) || !ft_strncmp(cmd, "env", 4)
+		|| !ft_strncmp(cmd, "exit", 5))
 		return (1);
-	}
 	return (0);
-}
-
-static void	exec_child_process(t_tree **cmd, char **envp, t_rumba **rumba_mk1)
-{
-	int	exec;
-
-	signal(SIGINT, SIG_DFL);
-	signal(SIGQUIT, SIG_DFL);
-	setup_redir(*cmd);
-	update_args0_path(cmd, envp, rumba_mk1);
-	exec = execve((*cmd)->args[0], (*cmd)->args, envp);
-	if (exec == -1)
-	{
-		ft_printf_fd(2, "minishell: %s: command not found\n", (*cmd)->args[0]);
-		exit(127);
-	}
 }
 
 void	execute_simple_command(t_tree **cmd, char **envp, t_rumba **rumba_mk1)
@@ -88,27 +61,29 @@ void	execute_simple_command(t_tree **cmd, char **envp, t_rumba **rumba_mk1)
 		waitpid(pid, &status, 0);
 		if (WIFEXITED(status))
 			g_exit_status = WEXITSTATUS(status);
+		else if (WIFSIGNALED(status))
+			g_exit_status = 128 + WTERMSIG(status);
 	}
 }
 
 void	execute_command(t_tree *cmd, char ***envp, t_rumba **rumba_mk1)
 {
+	int	saved_stdout;
+	int	saved_stdin;
+
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return ;
-	if (ft_strncmp(cmd->args[0], "cd", 3) == 0)
-		cd(cmd);
-	else if (ft_strncmp(cmd->args[0], "pwd", 4) == 0)
-		pwd();
-	else if (ft_strncmp(cmd->args[0], "echo", 5) == 0)
-		echo(cmd);
-	else if (ft_strncmp(cmd->args[0], "export", 7) == 0)
-		*envp = ft_export(*envp, cmd);
-	else if (ft_strncmp(cmd->args[0], "unset", 6) == 0)
-		ft_unset(*envp, cmd);
-	else if (ft_strncmp(cmd->args[0], "env", 4) == 0)
-		env(*envp);
-	else if (ft_strncmp(cmd->args[0], "exit", 5) == 0)
-		ft_exit(cmd);
+	if (is_builtin(cmd->args[0]))
+	{
+		saved_stdin = dup(STDIN_FILENO);
+		saved_stdout = dup(STDOUT_FILENO);
+		setup_redir(cmd);
+		run_builtin(cmd, envp);
+		dup2(saved_stdin, STDIN_FILENO);
+		dup2(saved_stdout, STDOUT_FILENO);
+		close(saved_stdin);
+		close(saved_stdout);
+	}
 	else
 		execute_simple_command(&cmd, *envp, rumba_mk1);
 }
