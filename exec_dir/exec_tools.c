@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/12 00:26:24 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/12 17:54:59 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 18:58:40 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void	exec_child_process(t_tree **cmd, char **envp, t_rumba **rumba_mk1)
 	if (exec == -1)
 	{
 		ft_printf_fd(2, "minishell: %s: command not found\n", (*cmd)->args[0]);
-		exit(127);
+		clean_child_exit(127, envp, rumba_mk1);
 	}
 }
 
@@ -85,4 +85,16 @@ void	close_tree_fds(t_tree *tree)
 	}
 	close_tree_fds(tree->l_child);
 	close_tree_fds(tree->r_child);
+}
+void	clean_child_exit(int code, char **envp, t_rumba **rumba_mk1)
+{
+	int	i;
+
+	i = 0;
+	while (envp && envp[i])
+		free(envp[i++]);
+	free(envp);
+	del_all_rumba(rumba_mk1);
+	rl_clear_history();
+	exit(code);
 }

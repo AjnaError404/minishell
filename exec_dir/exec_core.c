@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 18:44:43 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/12 00:28:28 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 18:30:16 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,13 +56,18 @@ void	execute_simple_command(t_tree **cmd, char **envp, t_rumba **rumba_mk1)
 		return ;
 	if (pid == 0)
 		exec_child_process(cmd, envp, rumba_mk1);
-	else
+	signal(SIGINT, SIG_IGN);
+	waitpid(pid, &status, 0);
+	init_signals();
+	if (WIFEXITED(status))
+		g_exit_status = WEXITSTATUS(status);
+	else if (WIFSIGNALED(status))
 	{
-		waitpid(pid, &status, 0);
-		if (WIFEXITED(status))
-			g_exit_status = WEXITSTATUS(status);
-		else if (WIFSIGNALED(status))
-			g_exit_status = 128 + WTERMSIG(status);
+		if (WTERMSIG(status) == SIGINT)
+			write(1, "\n", 1);
+		else if (WTERMSIG(status) == SIGQUIT)
+			ft_printf_fd(2, "Quit (core dumped)\n");
+		g_exit_status = 128 + WTERMSIG(status);
 	}
 }
 

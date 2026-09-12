@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 18:44:57 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/12 17:54:37 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 18:58:06 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void	exec_left_child(t_tree *node, char **envp, int pipefd[2],
 	close(pipefd[0]);
 	close(pipefd[1]);
 	execute_node(node->l_child, &envp, rumba_mk1);
-	exit(g_exit_status);
+	clean_child_exit(g_exit_status, envp, rumba_mk1);
 }
 
 void	exec_right_child(t_tree *node, char **envp, int pipefd[2],
@@ -55,18 +55,18 @@ void	exec_right_child(t_tree *node, char **envp, int pipefd[2],
 	close(pipefd[0]);
 	close(pipefd[1]);
 	execute_node(node->r_child, &envp, rumba_mk1);
-	exit(g_exit_status);
+	clean_child_exit(g_exit_status, envp, rumba_mk1);
 }
 
 void	execute_pipe(t_tree *node, char **envp, t_rumba **rumba_mk1)
 {
 	int		pipefd[2];
-	int		status;
 	pid_t	pid_left;
 	pid_t	pid_right;
+	int		status;
 
 	if (pipe(pipefd) == -1)
-		return;
+		return ;
 	pid_left = fork();
 	if (pid_left == 0)
 		exec_left_child(node, envp, pipefd, rumba_mk1);
@@ -75,8 +75,10 @@ void	execute_pipe(t_tree *node, char **envp, t_rumba **rumba_mk1)
 		exec_right_child(node, envp, pipefd, rumba_mk1);
 	close(pipefd[0]);
 	close(pipefd[1]);
+	signal(SIGINT, SIG_IGN);
 	waitpid(pid_left, NULL, 0);
 	waitpid(pid_right, &status, 0);
+	init_signals();
 	if (WIFEXITED(status))
 		g_exit_status = WEXITSTATUS(status);
 	else if (WIFSIGNALED(status))

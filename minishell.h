@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/16 12:23:29 by ykandous          #+#    #+#             */
-/*   Updated: 2026/09/12 18:13:40 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 18:59:02 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,6 +250,8 @@ void				exec_child_process(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
 char				*pathifie(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
 int					update_args0_path(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
 void				close_tree_fds(t_tree *tree);
+void				clean_child_exit(int code, char **envp, t_rumba **rumba_mk1);
+
 
 // signals.c
 void				handle_sigint(int sig);
