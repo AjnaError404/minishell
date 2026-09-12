@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/23 13:18:37 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/12 17:55:42 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 23:09:13 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,21 @@ static void	free_env(char **env)
 }
 void	process_line(char *line, char ***my_env, t_rumba **rumba_mk1)
 {
-	t_tree	*ast;
+	t_tree		*ast;
+	t_lexeme	*lex;
 
 	add_history(line);
-	ast = create_tree(create_lexer(line, rumba_mk1), *my_env, rumba_mk1);
+	if (!check_quotes_closed(line))
+		return ;
+	lex = create_lexer(line, rumba_mk1);
+	if (check_lex_pip(lex) == 0)
+	{
+		ft_printf_fd(2, "minishell: syntax error near unexpected token `|'\n");
+		g_exit_status = 2;
+		del_all_rumba(rumba_mk1);
+		return ;
+	}
+	ast = create_tree(lex, *my_env, rumba_mk1);
 	if (ast)
 	{
 		execute_node(ast, my_env, rumba_mk1);

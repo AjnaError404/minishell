@@ -6,36 +6,32 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/23 20:03:39 by ykandous          #+#    #+#             */
-/*   Updated: 2026/08/30 12:18:22 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/12 23:08:18 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-size_t	fls_countword(char *str, char **set)
+static size_t	fls_countword(char *str, char **set, int add_sep)
 {
-	size_t	i;
-	ssize_t	count;
-	size_t	word;
-	int		state;
+	size_t	count;
 	char	*sep;
 
-	fls_countword_initvat(&i, &count, &word, &state);
-	while (str[i])
+	count = 0;
+	while (str && *str)
 	{
-		state = update_state_n_count(str[i], state, &count);
-		if (state == STATE_OUT_QUOTE)
+		sep = is_charset(str, set);
+		if (!sep)
 		{
-			sep = is_charset(&str[i], set);
-			if (!sep && word == 0)
-				word = (count++ > -1);
-			else if (sep && word == 1)
-			{
-				word = !(count++ > -1);
-				i += ft_strlen(sep) - 1;
-			}
+			count++;
+			str += fls_wordsize(str, set, STATE_OUT_QUOTE);
 		}
-		i++;
+		else
+		{
+			if (add_sep)
+				count++;
+			str += ft_strlen(sep);
+		}
 	}
 	return (count);
 }
@@ -92,8 +88,8 @@ char	**fls_split(char *str, char **set, int add_sep, t_rumba **rumba_mk1)
 	char	**splited;
 	char	*sep;
 
-	splited = malloc_rumba((fls_countword(str, set) + 1) * sizeof(char *),
-			rumba_mk1);
+	splited = malloc_rumba((fls_countword(str, set, add_sep) + 1)
+			* sizeof(char *), rumba_mk1);
 	if (!splited)
 		return (NULL);
 	state = STATE_OUT_QUOTE;

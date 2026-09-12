@@ -3,50 +3,71 @@
 /*                                                        :::      ::::::::   */
 /*   check_lexer.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ykandous <ykandous@student.42.fr>          +#+  +:+       +#+        */
+/*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/24 20:57:22 by ykandous          #+#    #+#             */
-/*   Updated: 2026/08/23 19:47:43 by ykandous         ###   ########.fr       */
+/*   Updated: 2026/09/12 23:08:55 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+static int	is_only_spaces(char *str)
+{
+	int	i;
+
+	i = 0;
+	while (str && str[i])
+	{
+		if (str[i] != ' ' && str[i] != '\t')
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
 int	check_lex_pip(t_lexeme *lex)
 {
+	t_lexeme	*tmp;
+
 	if (!lex)
 		return (-1);
 	if (lex->type == TYPE_PIPE)
 		return (0);
 	while (lex)
 	{
-		if (lex->type == TYPE_PIPE && (lex->next == NULL
-				|| lex->next->type == TYPE_PIPE))
-			return (0);
+		if (lex->type == TYPE_PIPE)
+		{
+			tmp = lex->next;
+			while (tmp && is_only_spaces(tmp->value))
+				tmp = tmp->next;
+			if (!tmp || tmp->type == TYPE_PIPE)
+				return (0);
+		}
 		lex = lex->next;
 	}
 	return (1);
 }
 
-int	str_is_quote_closed(char *cmd)
+int	check_quotes_closed(char *line)
 {
+	int	state;
 	int	i;
-	int	f_closed_quote;
 
-	f_closed_quote = 1;
+	state = STATE_OUT_QUOTE;
 	i = 0;
-	while (cmd[i])
+	while (line && line[i])
 	{
-		if (cmd[i] == '\"')
-		{
-			if (f_closed_quote)
-				f_closed_quote = 0;
-			else
-				f_closed_quote = 1;
-		}
+		state = update_fsa_state(line[i], state);
 		i++;
 	}
-	return (f_closed_quote);
+	if (state != STATE_OUT_QUOTE)
+	{
+		ft_printf_fd(2, "minishell: syntax error: unclosed quote\n");
+		g_exit_status = 2;
+		return (0);
+	}
+	return (1);
 }
 
 int	lex_cmd_is_valid(t_lexeme *lex)
@@ -55,7 +76,7 @@ int	lex_cmd_is_valid(t_lexeme *lex)
 		return (-1);
 	while (lex)
 	{
-		if (lex->type == TYPE_WORD && !str_is_quote_closed(lex->value))
+		if (lex->type == TYPE_WORD && !check_quotes_closed(lex->value))
 			return (0);
 		lex = lex->next;
 	}
