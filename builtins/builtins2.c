@@ -6,13 +6,33 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/22 17:34:00 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/13 02:57:29 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 21:22:06 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int	ft_exit(t_tree *cmd, t_shell *shell)
+static void	clean_exit_all(int status, t_shell *shell, t_rumba **rumba_mk1)
+{
+	int	i;
+
+	if (shell && shell->env)
+	{
+		i = 0;
+		while (shell->env[i])
+			free(shell->env[i++]);
+		free(shell->env);
+	}
+	del_all_rumba(rumba_mk1);
+	rl_clear_history();
+	if (!isatty(STDIN_FILENO))
+		close(STDIN_FILENO);
+	if (!isatty(STDOUT_FILENO))
+		close(STDOUT_FILENO);
+	exit((unsigned char)status);
+}
+
+int	ft_exit(t_tree *cmd, t_shell *shell, t_rumba **rumba_mk1)
 {
 	int	status;
 
@@ -23,7 +43,7 @@ int	ft_exit(t_tree *cmd, t_shell *shell)
 		{
 			ft_printf_fd(2, "minishell: exit: %s: numeric argument required\n",
 				cmd->args[1]);
-			exit(2);
+			clean_exit_all(2, shell, rumba_mk1);
 		}
 		if (cmd->args[2] != NULL)
 		{
@@ -31,9 +51,10 @@ int	ft_exit(t_tree *cmd, t_shell *shell)
 			return (1);
 		}
 		status = ft_atoi(cmd->args[1]);
-		exit((unsigned char)status);
+		clean_exit_all(status, shell, rumba_mk1);
 	}
-	exit(shell->status);
+	clean_exit_all(shell->status, shell, rumba_mk1);
+	return (0);
 }
 
 int	ft_unset(char **env, t_tree *cmd)

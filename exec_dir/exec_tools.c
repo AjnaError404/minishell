@@ -6,11 +6,12 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/12 00:26:24 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/12 19:11:18 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 21:22:32 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
 
 char	*pathifie(t_tree **cmd, char **envp, t_rumba **rumba_mk1)
 {
@@ -74,13 +75,19 @@ void	clean_child_exit(int code, char **envp, t_rumba **rumba_mk1)
 {
 	int	i;
 
-	i = 0;
-	while (envp && envp[i])
-		free(envp[i++]);
-	free(envp);
+	if (envp)
+	{
+		i = 0;
+		while (envp[i])
+			free(envp[i++]);
+		free(envp);
+	}
 	del_all_rumba(rumba_mk1);
-	rl_clear_history();
-	exit(code);
+	if (!isatty(STDIN_FILENO))
+		close(STDIN_FILENO);
+	if (!isatty(STDOUT_FILENO))
+		close(STDOUT_FILENO);
+	exit((unsigned char)code);
 }
 
 void	exec_child_process(t_tree **cmd, char **envp, t_rumba **rumba_mk1)

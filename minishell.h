@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/16 12:23:29 by ykandous          #+#    #+#             */
-/*   Updated: 2026/09/13 02:59:06 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 18:29:21 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ int					env(char **envp);
 int					is_numeric(char *str);
 
 // builtins2.c
-int					ft_exit(t_tree *cmd, t_shell *shell);
+int					ft_exit(t_tree *cmd, t_shell *shell, t_rumba **rumba_mk1);
 int					ft_unset(char **env, t_tree *cmd);
 int					update_env_var(char **env, char *arg, int len);
 char				**add_env_var(char **env, char *arg);

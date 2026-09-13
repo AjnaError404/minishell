@@ -6,13 +6,13 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 18:44:43 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/13 02:57:51 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 21:20:58 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-static void	run_builtin(t_tree *cmd, t_shell *shell)
+static void	run_builtin(t_tree *cmd, t_shell *shell, t_rumba **rumba_mk1)
 {
 	if (ft_strncmp(cmd->args[0], "cd", 3) == 0)
 		shell->status = cd(cmd, shell->env);
@@ -27,7 +27,7 @@ static void	run_builtin(t_tree *cmd, t_shell *shell)
 	else if (ft_strncmp(cmd->args[0], "env", 4) == 0)
 		shell->status = env(shell->env);
 	else if (ft_strncmp(cmd->args[0], "exit", 5) == 0)
-		shell->status = ft_exit(cmd, shell);
+		shell->status = ft_exit(cmd, shell, rumba_mk1);
 }
 
 static int	is_builtin(char *cmd)
@@ -75,21 +75,21 @@ void	execute_command(t_tree *cmd, t_shell *shell, t_rumba **rumba_mk1)
 
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return ;
-	if (ft_strncmp(cmd->args[0], "exit", 5) == 0)
+	if (is_builtin(cmd->args[0]))
 	{
-		setup_redir(cmd);
-		run_builtin(cmd, shell);
-	}
-	else if (is_builtin(cmd->args[0]))
-	{
-		saved_stdin = dup(STDIN_FILENO);
-		saved_stdout = dup(STDOUT_FILENO);
-		setup_redir(cmd);
-		run_builtin(cmd, shell);
-		dup2(saved_stdin, STDIN_FILENO);
-		dup2(saved_stdout, STDOUT_FILENO);
-		close(saved_stdin);
-		close(saved_stdout);
+		if (cmd->fd_in != -2 || cmd->fd_out != -2)
+		{
+			saved_stdin = dup(STDIN_FILENO);
+			saved_stdout = dup(STDOUT_FILENO);
+			setup_redir(cmd);
+			run_builtin(cmd, shell, rumba_mk1);
+			dup2(saved_stdin, STDIN_FILENO);
+			dup2(saved_stdout, STDOUT_FILENO);
+			close(saved_stdin);
+			close(saved_stdout);
+		}
+		else
+			run_builtin(cmd, shell, rumba_mk1);
 	}
 	else
 		execute_simple_command(&cmd, shell, rumba_mk1);
