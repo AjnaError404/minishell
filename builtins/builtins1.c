@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/29 15:08:29 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/12 18:20:18 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 02:57:01 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,19 +27,25 @@ int	pwd(void)
 	return (0);
 }
 
-int	cd(t_tree *cmd)
+int	cd(t_tree *cmd, char **env)
 {
-	int	result;
+	char	*path;
 
 	if (cmd->args[1] == NULL)
 	{
-		ft_printf_fd(2, "minishell: cd: need an argument\n");
-		return (1);
+		path = find_envvar(env, "HOME");
+		if (!path || !*path)
+		{
+			ft_printf_fd(2, "minishell: cd: HOME not set\n");
+			return (1);
+		}
 	}
-	result = chdir(cmd->args[1]);
-	if (result == -1)
+	else
+		path = cmd->args[1];
+	if (chdir(path) == -1)
 	{
-		perror("cd");
+		ft_printf_fd(2, "minishell: cd: %s: ", path);
+		perror("");
 		return (1);
 	}
 	return (0);

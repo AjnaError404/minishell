@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 18:44:43 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/13 01:17:13 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 02:57:51 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 static void	run_builtin(t_tree *cmd, t_shell *shell)
 {
 	if (ft_strncmp(cmd->args[0], "cd", 3) == 0)
-		shell->status = cd(cmd);
+		shell->status = cd(cmd, shell->env);
 	else if (ft_strncmp(cmd->args[0], "pwd", 4) == 0)
 		shell->status = pwd();
 	else if (ft_strncmp(cmd->args[0], "echo", 5) == 0)
@@ -27,7 +27,7 @@ static void	run_builtin(t_tree *cmd, t_shell *shell)
 	else if (ft_strncmp(cmd->args[0], "env", 4) == 0)
 		shell->status = env(shell->env);
 	else if (ft_strncmp(cmd->args[0], "exit", 5) == 0)
-		ft_exit(cmd);
+		shell->status = ft_exit(cmd, shell);
 }
 
 static int	is_builtin(char *cmd)

@@ -6,13 +6,13 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/22 17:34:00 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/12 14:05:44 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 02:57:29 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int	ft_exit(t_tree *cmd)
+int	ft_exit(t_tree *cmd, t_shell *shell)
 {
 	int	status;
 
@@ -27,14 +27,13 @@ int	ft_exit(t_tree *cmd)
 		}
 		if (cmd->args[2] != NULL)
 		{
-			ft_printf_fd(2, "minishell: exit:too many arguments\n");
+			ft_printf_fd(2, "minishell: exit: too many arguments\n");
 			return (1);
 		}
 		status = ft_atoi(cmd->args[1]);
-		exit(status);
+		exit((unsigned char)status);
 	}
-	else
-		exit(0);
+	exit(shell->status);
 }
 
 int	ft_unset(char **env, t_tree *cmd)

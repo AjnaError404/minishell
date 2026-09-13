@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 22:28:53 by ykandous          #+#    #+#             */
-/*   Updated: 2026/09/13 00:42:28 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 02:58:41 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,13 @@ t_tree	*create_tree(t_lexeme *lexer, t_shell *shell, t_rumba **rumba_mk1)
 	if (!tree)
 		return (NULL);
 	if (!tree_update_args_n_fd(&tree, rumba_mk1))
+	{
+		if (g_signal != 0)
+			shell->status = 128 + g_signal;
+		else
+			shell->status = 1;
 		return (NULL);
+	}
 	if (!tree_expand_all(&tree, shell, rumba_mk1))
 		return (NULL);
 	if (!remove_quote(&tree, rumba_mk1))
