@@ -1,0 +1,28 @@
+{
+    ignore_readline
+    Memcheck:Leak
+    match-leak-kinds: all
+    ...
+    obj:*/libreadline.so*
+}
+{
+    ignore_tinfo
+    Memcheck:Leak
+    match-leak-kinds: all
+    ...
+    obj:*/libtinfo.so*
+}
+{
+    ignore_bin
+    Memcheck:Leak
+    match-leak-kinds: all
+    ...
+    obj:/bin/*
+}
+{
+    ignore_usr_bin
+    Memcheck:Leak
+    match-leak-kinds: all
+    ...
+    obj:/usr/bin/*
+}

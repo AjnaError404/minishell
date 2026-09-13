@@ -6,12 +6,11 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/12 00:26:24 by laaubry           #+#    #+#             */
-/*   Updated: 2026/09/13 21:22:32 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 22:04:25 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
 
 char	*pathifie(t_tree **cmd, char **envp, t_rumba **rumba_mk1)
 {
@@ -54,6 +53,7 @@ int	update_args0_path(t_tree **cmd, char **envp, t_rumba **rumba_mk1)
 	}
 	return (0);
 }
+
 void	close_tree_fds(t_tree *tree)
 {
 	if (!tree)
@@ -71,6 +71,7 @@ void	close_tree_fds(t_tree *tree)
 	close_tree_fds(tree->l_child);
 	close_tree_fds(tree->r_child);
 }
+
 void	clean_child_exit(int code, char **envp, t_rumba **rumba_mk1)
 {
 	int	i;
@@ -83,6 +84,7 @@ void	clean_child_exit(int code, char **envp, t_rumba **rumba_mk1)
 		free(envp);
 	}
 	del_all_rumba(rumba_mk1);
+	rl_clear_history();
 	if (!isatty(STDIN_FILENO))
 		close(STDIN_FILENO);
 	if (!isatty(STDOUT_FILENO))

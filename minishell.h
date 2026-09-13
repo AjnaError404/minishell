@@ -6,7 +6,7 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/16 12:23:29 by ykandous          #+#    #+#             */
-/*   Updated: 2026/09/13 18:29:21 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 21:59:50 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,25 +128,27 @@ void				execute_simple_command(t_tree **cmd, t_shell *shell,
 void				execute_command(t_tree *cmd, t_shell *shell,
 						t_rumba **rumba_mk1);
 
-
 // exec_redir.c
 void				execute_node(t_tree *node, t_shell *shell,
 						t_rumba **rumba_mk1);
 void				setup_redir(t_tree *tree);
 void				exec_left_child(t_tree *node, t_shell *shell, int pipefd[2],
 						t_rumba **rumba_mk1);
-void				exec_right_child(t_tree *node, t_shell *shell, int pipefd[2],
-						t_rumba **rumba_mk1);
+void				exec_right_child(t_tree *node, t_shell *shell,
+						int pipefd[2], t_rumba **rumba_mk1);
 void				execute_pipe(t_tree *node, t_shell *shell,
 						t_rumba **rumba_mk1);
 
-
 // exec_tools.c
-void				exec_child_process(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
-char				*pathifie(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
-int					update_args0_path(t_tree **cmd, char **envp, t_rumba **rumba_mk1);
+void				exec_child_process(t_tree **cmd, char **envp,
+						t_rumba **rumba_mk1);
+char				*pathifie(t_tree **cmd, char **envp,
+						t_rumba **rumba_mk1);
+int					update_args0_path(t_tree **cmd, char **envp,
+						t_rumba **rumba_mk1);
 void				close_tree_fds(t_tree *tree);
-void				clean_child_exit(int code, char **envp, t_rumba **rumba_mk1);
+void				clean_child_exit(int code, char **envp,
+						t_rumba **rumba_mk1);
 
 // expander_utils.c
 int					ft_isvarname_char(char *str);
@@ -157,10 +159,9 @@ char				*pick_var_name(char *str, t_rumba **rumba_mk1);
 char				*find_envvar(char **envp, char *var_name);
 
 // expander.c
-int					tree_expand_all(t_tree **tree, t_shell *shell, 
+int					tree_expand_all(t_tree **tree, t_shell *shell,
 						t_rumba **rumba_mk1);
 
-						
 // char_type.c
 int					ft_isall_word(char *str);
 int					ft_isdigit(char c);
@@ -189,7 +190,8 @@ int					increment_count_or_not(char c, int state);
 
 // fs_automaton.c
 int					fls_wordsize(char *str, char **set, int state);
-char				*fls_fillword(char *str, char **set, int state, t_rumba **rumba_mk1);
+char				*fls_fillword(char *str, char **set, int state,
+						t_rumba **rumba_mk1);
 int					handle_sep(char *sep, int add_sep, char **splited, int *j);
 char				**fls_split(char *str, char **set, int add_set,
 						t_rumba **rumba_mk1);
@@ -237,21 +239,24 @@ char				*ft_itoa_gp(int n, t_rumba **rumba_mk1);
 // ft_printf_utils.c
 int					ft_putchar_fd(int c, int fd);
 int					ft_putstr_fd(char *str, int fd);
-void				ft_put_pos_base_fd(unsigned long nb, char *base, int *cmp, int fd);
+void				ft_put_pos_base_fd(unsigned long nb, char *base,
+						int *cmp, int fd);
 int					ft_putbase_fd(int nb, char *base, int fd);
 
 // ft_printf.c
-int					ft_put_unsigned_nbr_base_fd(unsigned int nb, char *base, int fd);
+int					ft_put_unsigned_nbr_base_fd(unsigned int nb,
+						char *base, int fd);
 int					ft_put_ptr_fd(void *ptr, int fd);
-void				ft_switch_case_fd(char convert, va_list params, int *cmp, int fd);
+void				ft_switch_case_fd(char convert, va_list params,
+						int *cmp, int fd);
 int					ft_printf_fd(int fd, const char *format, ...);
 int					ft_printf(const char *format, ...);
 
 // ft_str_utils.c
-char	*ft_strdup_gp(char *s, t_rumba **rumba_mk1);
-char	*ft_substr_gp(char *s, unsigned int start, size_t len,
-		t_rumba **rumba_mk1);
-size_t	ft_strlcat(char *dst, char *src, size_t siz);
+char				*ft_strdup_gp(char *s, t_rumba **rumba_mk1);
+char				*ft_substr_gp(char *s, unsigned int start, size_t len,
+						t_rumba **rumba_mk1);
+size_t				ft_strlcat(char *dst, char *src, size_t siz);
 
 // is_something.c
 int					ft_char_is_something(char c);
@@ -279,7 +284,6 @@ void				process_line(char *line, t_shell *shell,
 // signals.c
 void				handle_sigint(int sig);
 void				init_signals(void);
-
 
 // test
 void				test_simple_cmd(char **envp);

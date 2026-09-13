@@ -6,14 +6,14 @@
 /*   By: laaubry <laaubry@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/23 19:43:34 by ykandous          #+#    #+#             */
-/*   Updated: 2026/09/13 00:41:46 by laaubry          ###   ########.fr       */
+/*   Updated: 2026/09/13 22:06:19 by laaubry          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
 static char	*expand_var(t_shell *shell, char *tree_args, int *j,
-		t_rumba **rumba_mk1)
+	t_rumba **rumba_mk1)
 {
 	char	*picked;
 	char	*expanded;
